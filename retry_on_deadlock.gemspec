@@ -36,9 +36,9 @@ Gem::Specification.new do |spec|
 
   # spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
 
-  spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/yourusername/deadlock_retry"
-  spec.metadata["changelog_uri"] = "https://github.com/yourusername/deadlock_retry"
+  spec.metadata["homepage_uri"] = "https://github.com/AimanAbuTalaah/retry_on_deadlock"
+  spec.metadata["source_code_uri"] = "https://github.com/AimanAbuTalaah/retry_on_deadlock"
+  spec.metadata["changelog_uri"] = "https://github.com/AimanAbuTalaah/retry_on_deadlock"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
@@ -52,10 +52,10 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "activerecord", ">= 5.0"
-  spec.add_dependency "activesupport", ">= 5.0"
+  spec.add_runtime_dependency "activerecord", "~> 5.0"
+  spec.add_runtime_dependency "activesupport", "~> 5.0"
 
-  spec.add_development_dependency "byebug"
+  spec.add_development_dependency "byebug", "~> 11.0"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "pg", "~> 1.0"
   spec.add_development_dependency "pry", "~> 0.13"
