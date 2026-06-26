@@ -35,6 +35,18 @@ Car.transaction(retry_on_deadlock: true) do
 end
 ```
 
+### Per-Transaction Overrides
+
+You can override global configuration settings for a specific transaction by passing them as arguments to the `transaction` method. Currently, you can override `max_retries`:
+
+```ruby
+# Retry this specific transaction up to 5 times (overriding the global setting)
+Car.transaction(retry_on_deadlock: true, max_retries: 5) do
+  car = Car.find(1)
+  car.update!(name: "Updated Name")
+end
+```
+
 ### Configuration
 
 You can configure the gem to suit your needs. For example:

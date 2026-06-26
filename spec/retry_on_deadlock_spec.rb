@@ -216,6 +216,45 @@ RSpec.describe RetryOnDeadlock do
     end.to raise_error(ActiveRecord::Deadlocked)
   end
 
+  it "respects max_retries override per transaction" do
+    allow(RetryOnDeadlock.configuration).to receive(:max_retries).and_return(0)
+
+    mutex = Mutex.new
+    condition = ConditionVariable.new
+    thread1_started = false
+
+    thread1 = Thread.new do
+      Car.transaction(retry_on_deadlock: true, max_retries: 3) do
+        mutex.synchronize do
+          thread1_started = true
+          condition.signal
+        end
+
+        record_a.update!(name: "Updated by Thread 1")
+        sleep(1)
+        record_b.lock!
+      end
+    end
+
+    thread2 = Thread.new do
+      mutex.synchronize do
+        condition.wait(mutex) until thread1_started
+      end
+
+      Car.transaction(retry_on_deadlock: true, max_retries: 3) do
+        record_b.update!(name: "Updated by Thread 2")
+        sleep(1)
+        record_a.lock!
+      end
+    end
+
+    thread1.join
+    thread2.join
+
+    expect(record_a.reload.name).to eq("Updated by Thread 1")
+    expect(record_b.reload.name).to eq("Updated by Thread 2")
+  end
+
   it "does not retry nested transactions" do
     allow(RetryOnDeadlock.configuration).to receive(:max_retries).and_return(3)
 

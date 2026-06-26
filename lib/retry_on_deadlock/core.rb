@@ -14,7 +14,7 @@ module RetryOnDeadlock
     if should_retry?(kwargs)
       transaction_with_lock_handling(*args, **kwargs.merge(retry_count: 0), &block)
     else
-      super(*args, **kwargs.except(:retry_on_deadlock), &block)
+      super(*args, **kwargs.except(:retry_on_deadlock, :max_retries), &block)
     end
   end
 
@@ -26,12 +26,14 @@ module RetryOnDeadlock
   # @param [Proc] block The block to execute within the transaction.
   def transaction_with_lock_handling(*args, **kwargs, &block)
     retry_count = kwargs[:retry_count]
+    max_retries = kwargs.key?(:max_retries) ? kwargs[:max_retries] : RetryOnDeadlock.configuration.max_retries
+
     loop do
       begin
-        return transaction(*args, **kwargs.except(:retry_count).merge(retry_on_deadlock: false), &block)
+        return transaction(*args, **kwargs.except(:retry_count, :max_retries).merge(retry_on_deadlock: false), &block)
       rescue ActiveRecord::Deadlocked => error
         raise error if inner_transaction?
-        raise error if retry_count >= RetryOnDeadlock.configuration.max_retries
+        raise error if retry_count >= max_retries
 
         log_details(error, retry_count) if RetryOnDeadlock.configuration.enable_logging
         retry_count += 1
