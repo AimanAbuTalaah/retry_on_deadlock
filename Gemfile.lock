@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    retry_on_deadlock (0.1.1)
+    retry_on_deadlock (0.2.0)
       activerecord (>= 5.0)
       activesupport (>= 5.0)
 
